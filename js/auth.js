@@ -11,7 +11,7 @@
 const AUTH_CONFIG = {
   // Default: admin / mgrh2026
   usernameHash: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-  passwordHash: '2a9fba5849b713fc7f80005e01d03bdf8a492db5ce6169b4983dfc78a306d33d'
+  passwordHash: '3b07d2968594819b0682ed1619991ac3b38be18bf1317d01904f7c532cba11d1'
 };
 
 // ──── HASH FUNCTION ────
