@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="no-referrer">
-<title>MGRH - Gestion Adhérents & Evènements</title>
+<title>MGRH GO - Gestion Adhérents & Evènements</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
 <nav class="sidebar">
   <div class="sidebar-brand">
     <img src="assets/logo.jpg" alt="MGRH" onerror="this.style.display='none'">
-    <div class="sidebar-logo">MGRH</div>
+    <div class="sidebar-logo">MGRH GO</div>
     <div class="sidebar-sub">Mouvement Génération RH - Grand Ouest</div>
   </div>
   <button class="nav-btn active" onclick="switchTab('members')" id="nav-members">
@@ -40,6 +40,10 @@
     <button class="connect-btn glow" onclick="openDataFile()" id="connectBtn">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       <span class="sync-text">Connecter au cloud</span>
+    </button>
+    <button class="connect-btn" onclick="exportData()" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);margin-top:6px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="sync-text">Exporter (backup)</span>
     </button>
     <button class="connect-btn" onclick="logout()" style="border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);margin-top:6px;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -146,9 +150,8 @@
 
 <div class="toast-container" id="toasts"></div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
