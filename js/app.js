@@ -30,21 +30,21 @@ function validateData(raw) {
   return d;
 }
 
-// ═══ DATA LAYER (Supabase) ═══
+// ═══ DATA LAYER (Firebase Firestore) ═══
 let saveTimeout = null;
 const SAVE_DEBOUNCE_MS = 2000;
 
 async function openDataFile() {
-  // Connect to Supabase and load data
-  if (!supabaseReady) {
-    if (!initSupabase()) {
-      toast('Erreur: Supabase non initialisé. Vérifiez la configuration.', 'error');
+  // Connect to Firebase and load data
+  if (!firebaseReady) {
+    if (!initFirebase()) {
+      toast('Erreur: Firebase non initialisé. Vérifiez la configuration.', 'error');
       return;
     }
   }
 
   setSyncStatus('saving', 'Chargement depuis le cloud...');
-  const remoteData = await loadData();
+  const remoteData = await firebaseLoadData();
 
   if (remoteData) {
     data = validateData(remoteData);
@@ -56,12 +56,12 @@ async function openDataFile() {
       if (response.ok) {
         const seedData = await response.json();
         data = validateData(seedData);
-        await saveData(data);
+        await firebaseSaveData(data);
         toast('Base initiale importée dans le cloud', 'success');
       }
     } catch {
       data = { members: [], events: [] };
-      await saveData(data);
+      await firebaseSaveData(data);
       toast('Nouvelle base créée dans le cloud', 'success');
     }
   }
@@ -75,7 +75,7 @@ async function openDataFile() {
 async function writeToFile() {
   // Save to Firestore
   setSyncStatus('saving', 'Sauvegarde cloud...');
-  const ok = await saveData(data);
+  const ok = await firebaseSaveData(data);
   if (ok) {
     lastSavedJSON = JSON.stringify(data);
     isDirty = false;
@@ -88,7 +88,7 @@ async function writeToFile() {
 
 // ═══ REAL-TIME SYNC ═══
 function startAutoSync() {
-  startRealtimeListener((remoteData) => {
+  firebaseStartListener((remoteData) => {
     const remoteJSON = JSON.stringify({ members: remoteData.members, events: remoteData.events });
     if (remoteJSON !== lastSavedJSON && !isDirty) {
       data = validateData(remoteData);
@@ -101,7 +101,7 @@ function startAutoSync() {
 }
 
 async function forceSave() {
-  if (!supabaseReady) {
+  if (!firebaseReady) {
     await openDataFile();
     return;
   }
@@ -117,7 +117,7 @@ function markDirty() {
   // Debounced auto-save to Firestore
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(async () => {
-    if (isDirty && supabaseReady) {
+    if (isDirty && firebaseReady) {
       await writeToFile();
     }
   }, SAVE_DEBOUNCE_MS);
@@ -510,8 +510,8 @@ function renderAll() { renderMembers(); renderEvents(); renderMembersPanel(); }
   document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('active'); }));
   document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay').forEach(o=>o.classList.remove('active')); });
 
-  // Try auto-connecting to Supabase
-  if (initSupabase()) {
+  // Try auto-connecting to Firebase
+  if (initFirebase()) {
     await openDataFile();
   } else {
     // Fallback to localStorage backup
