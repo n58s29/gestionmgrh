@@ -26,7 +26,7 @@ function validateData(raw) {
   ).map(m => ({ id:m.id, firstname:String(m.firstname||''), lastname:String(m.lastname||''), role:String(m.role||''), company:String(m.company||''), email:String(m.email||''), phone:String(m.phone||''), linkedin:String(m.linkedin||''), photo:String(m.photo||'') }));
   if (Array.isArray(raw.events)) d.events = raw.events.filter(e =>
     e && typeof e.title === 'string' && typeof e.date === 'string' && typeof e.id === 'string'
-  ).map(e => ({ id:e.id, title:String(e.title||''), date:String(e.date||''), time:String(e.time||''), theme:String(e.theme||''), location:String(e.location||''), description:String(e.description||''), attendees:Array.isArray(e.attendees)?e.attendees.filter(a=>typeof a==='string'):[], guests:Array.isArray(e.guests)?e.guests.filter(g=>g&&typeof g.firstname==='string').map(g=>({firstname:String(g.firstname||''),lastname:String(g.lastname||''),role:String(g.role||''),company:String(g.company||''),email:String(g.email||'')})):[] }));
+  ).map(e => ({ id:e.id, title:String(e.title||''), date:String(e.date||''), time:String(e.time||''), timeEnd:String(e.timeEnd||''), location:String(e.location||''), attendees:Array.isArray(e.attendees)?e.attendees.filter(a=>typeof a==='string'):[], guests:Array.isArray(e.guests)?e.guests.filter(g=>g&&typeof g.firstname==='string').map(g=>({firstname:String(g.firstname||''),lastname:String(g.lastname||''),role:String(g.role||''),company:String(g.company||''),email:String(g.email||'')})):[] }));
   return d;
 }
 
@@ -280,11 +280,10 @@ function renderEvents() {
     return `<div class="event-tile ${isPast?'past':''}" ondragover="event.preventDefault();event.dataTransfer.dropEffect='copy';this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropOnEvent(event,'${esc(ev.id)}');this.classList.remove('drag-over')">
       <div class="event-header">
         <div class="event-info">
-          ${ev.theme?'<div class="event-theme">'+esc(ev.theme)+'</div>':''}
           <div class="event-title">${esc(ev.title)}</div>
           <div class="event-meta">
-            ${ev.time?'<span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(ev.time)+'</span>':''}
-            ${ev.location?'<span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+esc(ev.location)+'</span>':''}
+            ${ev.time?'<span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(ev.time)+(ev.timeEnd?' → '+esc(ev.timeEnd):'')+'</span>':''}
+            ${ev.location?'<span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><a href="https://www.google.com/maps/search/?q='+encodeURIComponent(ev.location)+'" target="_blank" rel="noopener noreferrer" class="location-link">'+esc(ev.location)+'</a></span>':''}
           </div>
         </div>
         <div class="event-date-badge"><span class="event-date-day">${d.getDate()}</span><span class="event-date-month">${MO[d.getMonth()]}</span><span class="event-date-year">${d.getFullYear()}</span></div>
@@ -294,7 +293,6 @@ function renderEvents() {
           <button class="icon-btn delete" onclick="deleteEvent('${esc(ev.id)}')" title="Supprimer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
         </div>
       </div>
-      ${ev.description?'<div class="event-desc">'+esc(ev.description)+'</div>':''}
       <div class="event-attendees">
         ${total>0?'<div class="badge-count">'+total+'</div>':''}
         ${total===0?'<span class="drop-hint"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>Glissez un adhérent ou ajoutez un invité</span>':''}
@@ -311,13 +309,12 @@ function openEventModal(id) {
   document.getElementById('editEventId').value = id || '';
   if (id) {
     const ev = data.events.find(x=>x.id===id); if(!ev) return;
-    document.getElementById('eventTheme').value=ev.theme||'';
     document.getElementById('eventTitleInput').value=ev.title||'';
     document.getElementById('eventDate').value=ev.date||'';
     document.getElementById('eventTime').value=ev.time||'';
+    document.getElementById('eventTimeEnd').value=ev.timeEnd||'';
     document.getElementById('eventLocation').value=ev.location||'';
-    document.getElementById('eventDesc').value=ev.description||'';
-  } else { ['eventTheme','eventTitleInput','eventDate','eventTime','eventLocation','eventDesc'].forEach(i=>document.getElementById(i).value=''); }
+  } else { ['eventTitleInput','eventDate','eventTime','eventTimeEnd','eventLocation'].forEach(i=>document.getElementById(i).value=''); }
   document.getElementById('eventModal').classList.add('active');
 }
 function closeEventModal() { document.getElementById('eventModal').classList.remove('active'); }
@@ -326,7 +323,7 @@ function editEvent(id) { openEventModal(id); }
 function saveEvent() {
   const title=document.getElementById('eventTitleInput').value.trim(), date=document.getElementById('eventDate').value;
   if (!title||!date) { toast('Titre et date requis','error'); return; }
-  const d = { theme:document.getElementById('eventTheme').value.trim(), title, date, time:document.getElementById('eventTime').value, location:document.getElementById('eventLocation').value.trim(), description:document.getElementById('eventDesc').value.trim() };
+  const d = { title, date, time:document.getElementById('eventTime').value, timeEnd:document.getElementById('eventTimeEnd').value, location:document.getElementById('eventLocation').value.trim() };
   const editId=document.getElementById('editEventId').value;
   if (editId) { const idx=data.events.findIndex(e=>e.id===editId); if(idx>=0) data.events[idx]={...data.events[idx],...d}; toast('Événement modifié','success'); }
   else { data.events.push({id:genId(),attendees:[],...d}); toast('Événement ajouté','success'); }
@@ -515,6 +512,52 @@ function removeAttendee(eventId, memberId) {
 }
 
 function renderAll() { renderMembers(); renderEvents(); renderMembersPanel(); }
+
+// ═══ LOCATION AUTOCOMPLETE (Nominatim / OpenStreetMap) ═══
+let _locTimer = null;
+
+function onLocationInput(val) {
+  clearTimeout(_locTimer);
+  const drop = document.getElementById('locationSuggestions');
+  if (!drop) return;
+  if (val.trim().length < 3) { drop.innerHTML = ''; drop.style.display = 'none'; return; }
+  _locTimer = setTimeout(() => _fetchLocSuggestions(val.trim()), 350);
+}
+
+function onLocationFocus() {
+  const drop = document.getElementById('locationSuggestions');
+  if (drop && drop.children.length > 0) drop.style.display = 'block';
+}
+
+function onLocationBlur() {
+  setTimeout(() => {
+    const drop = document.getElementById('locationSuggestions');
+    if (drop) drop.style.display = 'none';
+  }, 200);
+}
+
+async function _fetchLocSuggestions(q) {
+  try {
+    const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=6&addressdetails=0', { headers: { 'Accept-Language': 'fr,en' } });
+    const places = await res.json();
+    const drop = document.getElementById('locationSuggestions');
+    if (!drop) return;
+    drop.innerHTML = '';
+    if (!places.length) { drop.style.display = 'none'; return; }
+    places.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'loc-suggestion';
+      div.textContent = p.display_name;
+      div.onmousedown = () => {
+        document.getElementById('eventLocation').value = p.display_name;
+        drop.innerHTML = '';
+        drop.style.display = 'none';
+      };
+      drop.appendChild(div);
+    });
+    drop.style.display = 'block';
+  } catch(e) { /* silently fail */ }
+}
 
 // ═══ INIT ═══
 (async function init() {

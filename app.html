@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org;">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="referrer" content="no-referrer">
@@ -131,11 +131,10 @@
 <div class="modal-overlay" id="eventModal"><div class="modal">
   <h2 id="eventModalTitle">Ajouter un événement</h2>
   <input type="hidden" id="editEventId">
-  <div class="form-group"><label>Thème / Catégorie</label><input type="text" id="eventTheme" placeholder="Ex: Networking, Formation, AG..." maxlength="100"></div>
   <div class="form-group"><label>Titre *</label><input type="text" id="eventTitleInput" required maxlength="200"></div>
-  <div class="form-row"><div class="form-group"><label>Date *</label><input type="date" id="eventDate"></div><div class="form-group"><label>Heure</label><input type="time" id="eventTime"></div></div>
-  <div class="form-group"><label>Lieu</label><input type="text" id="eventLocation"></div>
-  <div class="form-group"><label>Description courte</label><textarea id="eventDesc" rows="3"></textarea></div>
+  <div class="form-row" style="grid-template-columns:2fr 1fr 1fr;"><div class="form-group"><label>Date *</label><input type="date" id="eventDate"></div><div class="form-group"><label>Heure de début</label><input type="time" id="eventTime"></div><div class="form-group"><label>Heure de fin</label><input type="time" id="eventTimeEnd"></div></div>
+  <div class="form-group" style="position:relative;"><label>Lieu</label><input type="text" id="eventLocation" autocomplete="off" oninput="onLocationInput(this.value)" onfocus="onLocationFocus()" onblur="onLocationBlur()"><div id="locationSuggestions" class="location-suggestions"></div></div>
+
   <div class="form-actions"><button class="btn btn-ghost" onclick="closeEventModal()">Annuler</button><button class="btn btn-primary" onclick="saveEvent()">Enregistrer</button></div>
 </div></div>
 
