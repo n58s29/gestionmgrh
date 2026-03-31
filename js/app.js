@@ -305,6 +305,8 @@ function renderEvents() {
 }
 
 function openEventModal(id) {
+  const drop = document.getElementById('locationSuggestions');
+  if (drop) { drop.innerHTML = ''; drop.style.display = 'none'; }
   document.getElementById('eventModalTitle').textContent = id ? "Modifier l'événement" : 'Ajouter un événement';
   document.getElementById('editEventId').value = id || '';
   if (id) {
@@ -418,7 +420,6 @@ function printEventSheet(eventId) {
     + '<img src="logo.jpg" class="header-logo" onerror="this.style.display=\'none\'">'
     + '<div class="header-text">'
     + '<div class="header-title">Mouvement Génération RH</div>'
-    + (ev.theme ? '<div style="font-size:10px;color:#952088;text-transform:uppercase;letter-spacing:1px;font-weight:600;">' + esc(ev.theme) + '</div>' : '')
     + '<div class="header-event">' + esc(ev.title) + '</div>'
     + '<div class="header-meta">'
     + '<span><strong>' + dateStr + '</strong></span>'
